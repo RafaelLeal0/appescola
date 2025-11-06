@@ -25,7 +25,7 @@ export default function MainScreen() {
             headerRight: () => (
                 <TouchableOpacity onPress={logout} style={styles.headerButton}>
                     {/* ✅ Ícone substituindo o texto "Sair" */}
-                    <Ionicons name="log-out-outline" size={24} color="#ffffffff" />
+                    <Ionicons name="log-out-outline" size={24} color="#fff" />
                 </TouchableOpacity>
             ),
         });
