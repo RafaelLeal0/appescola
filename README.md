@@ -61,12 +61,12 @@ O projeto foi desenvolvido utilizando uma arquitetura moderna para aplicações 
 
 ### 1. Tela de Autenticação (Login/Cadastro)
 
-![Screenshot da Tela de Login](assets/screenshots/login_screen.png)
+![Screenshot da Tela de Login](Appescola/assets/screenshots/login_screen.png)
 
 ### 2. Tela Principal do Professor (Listagem de Turmas)
 
-![Screenshot da Tela Principal](assets/screenshots/main_screen.png)
+![Screenshot da Tela Principal](Appescola/assets/screenshots/main_screen.png)
 
 ### 3. Tela de Atividades da Turma
 
-![Screenshot da Tela de Atividades](assets/screenshots/activities_screen.png)
+![Screenshot da Tela de Atividades](Appescola/assets/screenshots/activities_screen.png)
