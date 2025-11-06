@@ -1,4 +1,4 @@
-// src/screens/Professor/MainScreen.js (CORRIGIDO)
+// src/screens/Professor/MainScreen.js
 
 import React, { useLayoutEffect, useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert, ActivityIndicator } from 'react-native';
@@ -9,7 +9,8 @@ import { Colors } from '../../styles/Colors.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
-import { getTurmasByProfessor } from '../../services/dataService.js'; 
+// IMPORTAÇÃO CORRIGIDA: Adiciona deleteTurma
+import { getTurmasByProfessor, deleteTurma } from '../../services/dataService.js'; 
 
 export default function MainScreen() {
     const { user, logout } = useAuth();
@@ -18,9 +19,9 @@ export default function MainScreen() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Debug: verifica se temos dados do usuário
+    // 1. Configuração do Header (Nome do Professor e Botão Sair)
     useLayoutEffect(() => {
-        console.log('MainScreen - Usuário logado:', user);
+        // O botão Sair já chama a função logout do contexto, o que destrói a sessão
         navigation.setOptions({
             headerTitle: user?.nome || 'Professor',
             headerRight: () => (
@@ -29,8 +30,9 @@ export default function MainScreen() {
                 </TouchableOpacity>
             ),
         });
-    }, [navigation, user]);
+    }, [navigation, user, logout]);
 
+    // 2. Função de Carregamento de Turmas (LISTAR)
     const loadTurmas = useCallback(async () => {
         if (!user?.id) {
             console.error('MainScreen - ID do professor não disponível');
@@ -42,9 +44,8 @@ export default function MainScreen() {
         setLoading(true);
         setError(null);
         try {
-            console.log('MainScreen - Buscando turmas para professor_id:', user.id);
+            // Busca turmas pertencentes ao professor
             const data = await getTurmasByProfessor(user.id);
-            console.log('MainScreen - Turmas retornadas:', data);
             setTurmas(data || []);
         } catch (err) {
             console.error('MainScreen - Erro ao carregar turmas:', err);
@@ -62,19 +63,40 @@ export default function MainScreen() {
         }, [loadTurmas])
     );
 
-    // Recarrega turmas ao voltar da tela de detalhes
-    useFocusEffect(
-        useCallback(() => {
-            console.log('MainScreen focada - recarregando turmas...');
-            loadTurmas();
-        }, [loadTurmas])
-    );
+    // 3. Função de Exclusão de Turmas (EXCLUIR)
+    const handleDeleteTurma = (turmaId, turmaNome) => {
+        // Apresenta a tela de confirmação antes de excluir
+        Alert.alert(
+            'Confirmar Exclusão',
+            `Você realmente deseja excluir a turma "${turmaNome}"?`,
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                { 
+                    text: 'Excluir', 
+                    style: 'destructive', 
+                    onPress: async () => {
+                        try {
+                            // Chama a função que verifica atividades e exclui
+                            await deleteTurma(turmaId); 
+                            Alert.alert('Sucesso', 'Turma excluída com sucesso.');
+                            loadTurmas(); // Recarrega a lista
+                        } catch (error) {
+                            // Exibe a mensagem de erro, incluindo a regra: "Você não pode excluir uma turma com atividades cadastradas"
+                            Alert.alert('Erro', error.message);
+                        }
+                    }
+                },
+            ]
+        );
+    };
 
+    // 4. Renderização de Cada Item da Lista
     const renderItem = ({ item }) => (
         <View style={styles.turmaCard}>
             <TouchableOpacity 
                 style={styles.turmaInfo}
-                onPress={() => navigation.navigate('TurmaDetails', { turma: item })}
+                // Navega para a tela de atividades, passando o ID e Nome da turma
+                onPress={() => navigation.navigate('Activities', { turmaId: item.id, turmaNome: item.nome })}
             >
                 <Text style={styles.turmaNome}>{item.nome}</Text>
                 <Text style={styles.turmaAtividades}>
@@ -83,21 +105,21 @@ export default function MainScreen() {
             </TouchableOpacity>
             
             <View style={styles.buttonContainer}>
+                {/* Botão para Visualizar (Acessar a tela de atividades) */}
                 <TouchableOpacity
                     style={[styles.actionButton, styles.viewButton]}
-                    onPress={() => navigation.navigate('TurmaDetails', { turma: item })}
+                    onPress={() => navigation.navigate('Activities', { turmaId: item.id, turmaNome: item.nome })}
                 >
                     <Text style={styles.buttonText}>Visualizar</Text>
                 </TouchableOpacity>
 
-                {/*
+                {/* Botão para Excluir (Funcionalidade Requerida) */}
                 <TouchableOpacity
                     style={[styles.actionButton, styles.deleteButton]}
                     onPress={() => handleDeleteTurma(item.id, item.nome)}
                 >
                     <Text style={styles.buttonText}>Excluir</Text>
                 </TouchableOpacity>
-                */}
             </View>
         </View>
     );
@@ -120,6 +142,7 @@ export default function MainScreen() {
                     </View>
                 )}
 
+                {/* Botão para acesso ao "cadastro de turma" */}
                 <TouchableOpacity
                     style={GlobalStyles.button}
                     onPress={() => navigation.navigate('ClassRegistration')}
@@ -155,11 +178,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     turmaCard: {
-        backgroundColor: Colors.card,
+        backgroundColor: Colors.cardBackground, 
         borderRadius: 8,
         padding: 15,
         marginBottom: 10,
-        ...GlobalStyles.shadow,
+        // ... Estilos de sombra
     },
     turmaInfo: {
         marginBottom: 10,
@@ -167,7 +190,7 @@ const styles = StyleSheet.create({
     turmaNome: {
         fontSize: 18,
         fontWeight: '500',
-        color: Colors.textDark,
+        color: Colors.text, 
     },
     turmaAtividades: {
         fontSize: 14,
@@ -185,13 +208,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     viewButton: {
-        backgroundColor: Colors.primary,
+        backgroundColor: Colors.secondary, 
     },
     deleteButton: {
-        backgroundColor: Colors.danger,
+        backgroundColor: Colors.danger, 
     },
     buttonText: {
-        color: Colors.white,
+        color: 'white', 
         fontWeight: 'bold',
     },
     centerContent: {
@@ -201,9 +224,11 @@ const styles = StyleSheet.create({
     },
     errorContainer: {
         padding: 10,
-        backgroundColor: '#ffebee',
+        backgroundColor: '#F8D7DA', 
         borderRadius: 5,
         marginBottom: 10,
+        borderColor: Colors.danger,
+        borderWidth: 1,
     },
     errorText: {
         color: Colors.danger,
