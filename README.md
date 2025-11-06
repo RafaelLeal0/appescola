@@ -1,4 +1,4 @@
-# 📚 APP ESCOLA: Controle de Turmas e Atividades
+# 📚 APP ESCOLA: Controle de Turmas e Atividades - Gustavo Martins, Rafael Leal e Rian Eduardo
 
 [cite_start]Este projeto é um aplicativo mobile desenvolvido em **React Native com Expo** para auxiliar professores a gerenciar suas turmas e registrar atividades, conforme o desafio de fixação[cite: 6]. O sistema utiliza o **Supabase** como backend em tempo real.
 
@@ -60,4 +60,4 @@ Os caminhos das imagens foram confirmados para o local `assets/screenshots/`.
 
 ---
 
-**Observação:** Se as imagens não aparecerem após o commit para o GitHub, verifique se os nomes dos arquivos (`activities_screen.png`, `login_screen.png`, `main_screen.png`) e o caminho da pasta (`assets/screenshots`) estão em **minúsculas** no seu sistema de arquivos local e no repositório. O GitHub é sensível a maiúsculas e minúsculas.
+**Observação:** Se as imagens não aparecerem após o commit para o GitHub, verifique se os nomes dos arquivos (`activities_screen.png`, `login_screen.png`, `main_screen.png`) e o caminho da pasta (`assets/screenshots`) ou assista o vídeo gravado onde está no sistema de arquivos local e no repositório. O GitHub é sensível a maiúsculas e minúsculas.
