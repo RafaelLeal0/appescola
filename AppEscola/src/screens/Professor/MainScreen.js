@@ -1,15 +1,16 @@
-// src/screens/Professor/MainScreen.js (CORRIGIDO)
+// src/screens/Professor/MainScreen.js (ATUALIZADO COM ICON E AJUSTE DE COR)
 
-import React, { useLayoutEffect, useState, useEffect, useCallback } from 'react';
+import React, { useLayoutEffect, useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 
-// Ajuste de caminhos: a partir de src/screens/Professor -> src/styles, src/context e src/services é ../../
 import { GlobalStyles } from '../../styles/GlobalStyles.js'; 
 import { Colors } from '../../styles/Colors.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { getTurmasByProfessor } from '../../services/dataService.js';
 
-import { getTurmasByProfessor } from '../../services/dataService.js'; 
+// ✅ ÍCONE DE SAIR
+import { Ionicons } from '@expo/vector-icons';
 
 export default function MainScreen() {
     const { user, logout } = useAuth();
@@ -18,14 +19,13 @@ export default function MainScreen() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Debug: verifica se temos dados do usuário
     useLayoutEffect(() => {
-        console.log('MainScreen - Usuário logado:', user);
         navigation.setOptions({
             headerTitle: user?.nome || 'Professor',
             headerRight: () => (
                 <TouchableOpacity onPress={logout} style={styles.headerButton}>
-                    <Text style={styles.headerButtonText}>Sair</Text>
+                    {/* ✅ Ícone substituindo o texto "Sair" */}
+                    <Ionicons name="log-out-outline" size={24} color="#ffffffff" />
                 </TouchableOpacity>
             ),
         });
@@ -33,7 +33,6 @@ export default function MainScreen() {
 
     const loadTurmas = useCallback(async () => {
         if (!user?.id) {
-            console.error('MainScreen - ID do professor não disponível');
             setError('Dados do professor não disponíveis');
             setLoading(false);
             return;
@@ -42,12 +41,9 @@ export default function MainScreen() {
         setLoading(true);
         setError(null);
         try {
-            console.log('MainScreen - Buscando turmas para professor_id:', user.id);
             const data = await getTurmasByProfessor(user.id);
-            console.log('MainScreen - Turmas retornadas:', data);
             setTurmas(data || []);
         } catch (err) {
-            console.error('MainScreen - Erro ao carregar turmas:', err);
             setError(err.message);
             Alert.alert('Erro', 'Não foi possível carregar as turmas.');
         } finally {
@@ -55,17 +51,8 @@ export default function MainScreen() {
         }
     }, [user]);
 
-    // Carrega turmas quando a tela recebe foco
     useFocusEffect(
         useCallback(() => {
-            loadTurmas();
-        }, [loadTurmas])
-    );
-
-    // Recarrega turmas ao voltar da tela de detalhes
-    useFocusEffect(
-        useCallback(() => {
-            console.log('MainScreen focada - recarregando turmas...');
             loadTurmas();
         }, [loadTurmas])
     );
@@ -87,17 +74,9 @@ export default function MainScreen() {
                     style={[styles.actionButton, styles.viewButton]}
                     onPress={() => navigation.navigate('TurmaDetails', { turma: item })}
                 >
+                    {/* ✅ cor branca garantida */}
                     <Text style={styles.buttonText}>Visualizar</Text>
                 </TouchableOpacity>
-
-                {/*
-                <TouchableOpacity
-                    style={[styles.actionButton, styles.deleteButton]}
-                    onPress={() => handleDeleteTurma(item.id, item.nome)}
-                >
-                    <Text style={styles.buttonText}>Excluir</Text>
-                </TouchableOpacity>
-                */}
             </View>
         </View>
     );
@@ -113,7 +92,7 @@ export default function MainScreen() {
     return (
         <View style={GlobalStyles.container}>
             <View style={GlobalStyles.contentPadding}>
-                {/* Debug: mostra erro se houver */}
+                
                 {error && (
                     <View style={styles.errorContainer}>
                         <Text style={styles.errorText}>Erro: {error}</Text>
@@ -121,7 +100,7 @@ export default function MainScreen() {
                 )}
 
                 <TouchableOpacity
-                    style={GlobalStyles.button}
+                    style={[GlobalStyles.button, styles.addButton]}
                     onPress={() => navigation.navigate('ClassRegistration')}
                 >
                     <Text style={GlobalStyles.buttonText}>Cadastrar nova turma</Text>
@@ -149,68 +128,90 @@ export default function MainScreen() {
 const styles = StyleSheet.create({
     headerButton: {
         paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+        backgroundColor: Colors.primary,
+        marginRight: 10,
     },
-    headerButtonText: {
-        color: Colors.primary,
-        fontWeight: 'bold',
-    },
+
     turmaCard: {
         backgroundColor: Colors.card,
-        borderRadius: 8,
-        padding: 15,
-        marginBottom: 10,
-        ...GlobalStyles.shadow,
+        borderRadius: 14,
+        padding: 18,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: Colors.borderLight,
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowOffset: { width: 0, height: 3 },
+        shadowRadius: 6,
+        elevation: 3,
     },
+
     turmaInfo: {
-        marginBottom: 10,
+        marginBottom: 16,
     },
+
     turmaNome: {
-        fontSize: 18,
-        fontWeight: '500',
+        fontSize: 20,
+        fontWeight: '600',
         color: Colors.textDark,
+        marginBottom: 4,
     },
+
     turmaAtividades: {
         fontSize: 14,
         color: Colors.textLight,
     },
+
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
     },
+
     actionButton: {
         flex: 1,
-        marginHorizontal: 5,
-        borderRadius: 5,
-        paddingVertical: 10,
+        borderRadius: 10,
+        paddingVertical: 12,
         alignItems: 'center',
     },
+
     viewButton: {
         backgroundColor: Colors.primary,
+        shadowColor: Colors.primary,
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
     },
-    deleteButton: {
-        backgroundColor: Colors.danger,
-    },
+
+    // ✅ Texto agora sempre branco
     buttonText: {
-        color: Colors.white,
-        fontWeight: 'bold',
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 15,
     },
+
     centerContent: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
+
     errorContainer: {
-        padding: 10,
-        backgroundColor: '#ffebee',
-        borderRadius: 5,
-        marginBottom: 10,
+        padding: 12,
+        backgroundColor: '#ffeaea',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#ffc7c7',
+        marginBottom: 14,
     },
     errorText: {
         color: Colors.danger,
         textAlign: 'center',
+        fontWeight: '600',
     },
+
     emptyContainer: {
-        padding: 20,
+        padding: 40,
         alignItems: 'center',
     },
     emptyText: {
@@ -218,5 +219,18 @@ const styles = StyleSheet.create({
         color: Colors.textLight,
         fontSize: 16,
         lineHeight: 24,
+    },
+
+    listContainer: {
+        paddingTop: 20,
+        paddingBottom: 50,
+    },
+
+    addButton: {
+        shadowColor: Colors.primary,
+        shadowOpacity: 0.18,
+        shadowRadius: 6,
+        elevation: 5,
+        borderRadius: 10,
     },
 });

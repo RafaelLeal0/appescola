@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, KeyboardAvoidingView, Platform, View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView, ScrollView, KeyboardAvoidingView, Platform, View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, Image } from 'react-native';
 import { GlobalStyles } from '../../styles/GlobalStyles.js';
 import { Colors } from '../../styles/Colors.js';
 import { useNavigation } from '@react-navigation/native';
@@ -117,7 +117,13 @@ export default function RegisterScreen() {
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.formWrap}>
-                        <Text style={GlobalStyles.title}>Cadastrar</Text>
+                        {/* Imagem acima do "Cadastrar" */}
+                        <Image
+                            source={require('../../../assets/logo.png')}
+                            style={{ width: 250, height: 250, alignSelf: 'center', marginBottom: 0 }}
+                            resizeMode="contain"
+                        />
+                        <Text style={[GlobalStyles.title, styles.titleLift]}>Cadastrar</Text>
 
                         {errorMessage ? (
                             <View style={GlobalStyles.errorBox}>
@@ -206,5 +212,9 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 16,
+    },
+    titleLift: {
+        marginTop: -40, // ajusta esse valor conforme preferir
+        alignSelf: 'center',
     },
 });

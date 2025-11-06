@@ -1,7 +1,7 @@
 // src/screens/Auth/LoginScreen.js
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, StyleSheet } from 'react-native';
 import { GlobalStyles } from '../../styles/GlobalStyles.js';
 import { Colors } from '../../styles/Colors.js';
 import { useAuth } from '../../context/AuthContext.js';
@@ -51,10 +51,23 @@ export default function LoginScreen() {
         }
     };
 
+    const styles = StyleSheet.create({
+        titleLift: {
+            marginTop: -40, // ajusta esse valor conforme preferir
+            alignSelf: 'center',
+        },
+    });
+
     return (
         <View style={GlobalStyles.container}>
             <View style={{ ...GlobalStyles.contentPadding, flex: 1, justifyContent: 'center' }}>
-                <Text style={GlobalStyles.title}>Bem Vindo</Text>
+                {/* Imagem acima do "Bem Vindo" */}
+                <Image
+                    source={require('../../../assets/logo.png')}
+                    style={{ width: 250, height: 250, alignSelf: 'center', marginBottom: 0 }}
+                    resizeMode="contain"
+                />
+                <Text style={[GlobalStyles.title, styles.titleLift]}>Bem Vindo</Text>
 
                 {/* Exibição da mensagem de Erro */}
                 {loginError && (

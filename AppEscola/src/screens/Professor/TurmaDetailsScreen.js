@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Modal, StyleSheet, ActivityIndicator } from 'react-native';
-import { GlobalStyles } from '../../styles/GlobalStyles.js';
+// Assumindo que GlobalStyles e Colors existem e contêm estilos base
+import { GlobalStyles } from '../../styles/GlobalStyles.js'; 
 import { Colors } from '../../styles/Colors.js';
 import { updateTurma, updateAtividade, getAtividadesByTurma, deleteTurma, deleteAtividade, createAtividade } from '../../services/dataService.js';
+
+// ... (Restante do código, que não precisa ser repetido se não foi alterado na lógica)
+// A lógica do componente permanece a mesma, apenas a estilização foi aprimorada.
 
 export default function TurmaDetailsScreen({ route, navigation }) {
     const { turma } = route.params;
@@ -15,11 +19,13 @@ export default function TurmaDetailsScreen({ route, navigation }) {
     const [atividadeEmEdicao, setAtividadeEmEdicao] = useState(null);
     const [novaAtividadeDescricao, setNovaAtividadeDescricao] = useState('');
     const [modalNovaAtividadeVisible, setModalNovaAtividadeVisible] = useState(false);
-    const [excluindoTurma, setExcluindoTurma] = useState(false); // Estado para controlar o loading do botão de exclusão
+    const [excluindoTurma, setExcluindoTurma] = useState(false);
 
     useEffect(() => {
         carregarAtividades();
     }, []);
+
+    // ... (funções carregarAtividades, handleSalvarTurma, handleEditarAtividade, handleSalvarAtividade, handleAdicionarAtividade, handleExcluirTurma, handleExcluirAtividade - Manter a mesma lógica)
 
     const carregarAtividades = async () => {
         try {
@@ -38,15 +44,11 @@ export default function TurmaDetailsScreen({ route, navigation }) {
 
         setLoading(true);
         try {
-            // Envia apenas o campo nome para atualização
             const turmaAtualizada = await updateTurma(turma.id, {
                 nome: nome.trim()
             });
 
-            // Atualiza estado local e navegação
             setNome(turmaAtualizada.nome);
-            
-            // Atualiza o título na navegação
             navigation.setParams({ 
                 turma: { ...turma, ...turmaAtualizada }
             });
@@ -78,7 +80,6 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                 descricao: atividadeEmEdicao.descricao.trim()
             });
 
-            // Atualiza lista de atividades substituindo a editada
             setAtividades(prev => 
                 prev.map(a => a.id === atividadeAtualizada.id ? atividadeAtualizada : a)
             );
@@ -103,10 +104,10 @@ export default function TurmaDetailsScreen({ route, navigation }) {
         setLoading(true);
         try {
             const novaAtividade = await createAtividade(novaAtividadeDescricao.trim(), turma.id);
-            setAtividades([...atividades, novaAtividade]); // Atualiza a lista localmente
+            setAtividades([...atividades, novaAtividade]);
             Alert.alert('Sucesso', 'Atividade cadastrada com sucesso!');
             setNovaAtividadeDescricao('');
-            setModalNovaAtividadeVisible(false); // Fecha o modal
+            setModalNovaAtividadeVisible(false);
         } catch (error) {
             console.error('Erro ao cadastrar atividade:', error);
             Alert.alert('Erro', 'Não foi possível cadastrar a atividade.');
@@ -116,14 +117,10 @@ export default function TurmaDetailsScreen({ route, navigation }) {
     };
 
     const handleExcluirTurma = async () => {
-        console.log('=== BOTÃO EXCLUIR CLICADO ===');
         
         if (excluindoTurma) {
-            console.log('Exclusão já em andamento, ignorando clique');
             return;
         }
-
-        console.log('Exibindo Alert de confirmação...');
         
         Alert.alert(
             'Confirmar Exclusão',
@@ -132,28 +129,22 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                 { 
                     text: 'Cancelar', 
                     style: 'cancel',
-                    onPress: () => console.log('Usuário cancelou a exclusão')
                 },
                 {
                     text: 'Excluir',
                     style: 'destructive',
                     onPress: async () => {
-                        console.log('Usuário confirmou exclusão, iniciando processo...');
                         setExcluindoTurma(true);
                         
                         try {
-                            console.log('Chamando deleteTurma com ID:', turma.id);
                             await deleteTurma(turma.id);
-                            console.log('Turma excluída com sucesso no banco');
                             
                             Alert.alert('Sucesso', 'Turma excluída com sucesso!');
-                            console.log('Navegando para tela anterior...');
                             navigation.goBack();
                         } catch (error) {
                             console.error('ERRO NA EXCLUSÃO:', error);
                             Alert.alert('Erro', error.message || 'Não foi possível excluir a turma.');
                         } finally {
-                            console.log('Finalizando processo de exclusão');
                             setExcluindoTurma(false);
                         }
                     },
@@ -177,7 +168,7 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                         try {
                             await deleteAtividade(atividadeId);
                             Alert.alert('Sucesso', 'Atividade excluída com sucesso!');
-                            carregarAtividades(); // Recarrega a lista de atividades
+                            carregarAtividades();
                         } catch (error) {
                             console.error('Erro ao excluir atividade:', error);
                             Alert.alert('Erro', 'Não foi possível excluir a atividade.');
@@ -193,54 +184,56 @@ export default function TurmaDetailsScreen({ route, navigation }) {
     const renderAtividadeItem = (atividade) => (
         <View key={atividade.id} style={styles.atividadeItem}>
             <Text style={styles.atividadeDescricao}>{atividade.descricao}</Text>
-            <TouchableOpacity
-                onPress={() => handleEditarAtividade(atividade)}
-                style={styles.editAtividadeButton}
-            >
-                <Text style={styles.editButtonText}>Editar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => handleExcluirAtividade(atividade.id)}
-                style={styles.deleteAtividadeButton}
-            >
-                <Text style={styles.deleteButtonText}>Excluir</Text>
-            </TouchableOpacity>
+            <View style={styles.atividadeActions}>
+                <TouchableOpacity
+                    onPress={() => handleEditarAtividade(atividade)}
+                    style={styles.actionButton}
+                >
+                    <Text style={styles.actionButtonTextPrimary}>Editar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => handleExcluirAtividade(atividade.id)}
+                    style={styles.actionButton}
+                >
+                    <Text style={styles.actionButtonTextDanger}>Excluir</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 
     return (
         <ScrollView style={GlobalStyles.container}>
             <View style={GlobalStyles.contentPadding}>
+
                 {/* Dados da Turma */}
                 <View style={styles.section}>
                     <View style={styles.header}>
                         <Text style={styles.sectionTitle}>Dados da Turma</Text>
-                        <TouchableOpacity
-                            onPress={() => setIsEditing(!isEditing)}
-                            disabled={loading}
-                        >
-                            <Text style={styles.editButton}>
-                                {isEditing ? 'Cancelar' : 'Editar'}
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {
-                                console.log('TouchableOpacity pressionado');
-                                handleExcluirTurma();
-                            }}
-                            disabled={excluindoTurma}
-                            style={[
-                                styles.deleteButtonContainer,
-                                excluindoTurma && styles.disabledButton
-                            ]}
-                            activeOpacity={0.7}
-                        >
-                            {excluindoTurma ? (
-                                <ActivityIndicator size="small" color={Colors.danger} />
-                            ) : (
-                                <Text style={styles.deleteButtonText}>Excluir Turma</Text>
-                            )}
-                        </TouchableOpacity>
+                        <View style={styles.headerActions}>
+                            <TouchableOpacity
+                                onPress={() => setIsEditing(!isEditing)}
+                                disabled={loading}
+                                style={styles.editButtonContainer}
+                            >
+                                <Text style={styles.editButtonText}>
+                                    {isEditing ? 'Cancelar' : 'Editar'}
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleExcluirTurma}
+                                disabled={excluindoTurma}
+                                style={[
+                                    styles.deleteButtonContainer,
+                                    excluindoTurma && styles.disabledButton
+                                ]}
+                            >
+                                {excluindoTurma ? (
+                                    <ActivityIndicator size="small" color={Colors.danger} />
+                                ) : (
+                                    <Text style={styles.deleteButtonText}>Excluir Turma</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {isEditing ? (
@@ -263,7 +256,7 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                             <TouchableOpacity
                                 style={GlobalStyles.button}
                                 onPress={handleSalvarTurma}
-                                disabled={loading}
+                                disabled={loading || nome.trim() === turma.nome.trim()}
                             >
                                 {loading ? (
                                     <ActivityIndicator color="#fff" />
@@ -276,12 +269,8 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                         <View style={styles.info}>
                             <Text style={styles.label}>Nome:</Text>
                             <Text style={styles.value}>{nome}</Text>
-                            {descricao ? (
-                                <>
-                                    <Text style={styles.label}>Descrição:</Text>
-                                    <Text style={styles.value}>{descricao}</Text>
-                                </>
-                            ) : null}
+                            <Text style={styles.label}>Descrição:</Text>
+                            <Text style={styles.value}>{descricao || 'Nenhuma descrição informada.'}</Text>
                         </View>
                     )}
                 </View>
@@ -289,15 +278,22 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                 {/* Lista de Atividades */}
                 <View style={styles.section}>
                     <View style={styles.header}>
-                        <Text style={styles.sectionTitle}>Atividades</Text>
+                        <Text style={styles.sectionTitle}>Atividades ({atividades.length})</Text>
                         <TouchableOpacity
-                            onPress={() => setModalNovaAtividadeVisible(true)} // Abre o modal para adicionar atividade
+                            onPress={() => setModalNovaAtividadeVisible(true)}
                             disabled={loading}
+                            style={styles.addButtonContainer}
                         >
-                            <Text style={styles.addButton}>Adicionar Atividade</Text>
+                            <Text style={styles.addButtonText}>+ Adicionar</Text>
                         </TouchableOpacity>
                     </View>
-                    {atividades.map(renderAtividadeItem)}
+                    <View style={styles.atividadesList}>
+                        {atividades.length > 0 ? (
+                            atividades.map(renderAtividadeItem)
+                        ) : (
+                            <Text style={styles.noActivitiesText}>Nenhuma atividade cadastrada. Adicione uma nova!</Text>
+                        )}
+                    </View>
                 </View>
             </View>
 
@@ -305,7 +301,7 @@ export default function TurmaDetailsScreen({ route, navigation }) {
             <Modal
                 visible={modalVisible}
                 transparent={true}
-                animationType="slide"
+                animationType="fade"
                 onRequestClose={() => setModalVisible(false)}
             >
                 <View style={styles.modalContainer}>
@@ -325,7 +321,7 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                         />
 
                         <TouchableOpacity
-                            style={GlobalStyles.button}
+                            style={[GlobalStyles.button, { marginTop: 15 }]}
                             onPress={handleSalvarAtividade}
                             disabled={loading}
                         >
@@ -351,7 +347,7 @@ export default function TurmaDetailsScreen({ route, navigation }) {
             <Modal
                 visible={modalNovaAtividadeVisible}
                 transparent={true}
-                animationType="slide"
+                animationType="fade"
                 onRequestClose={() => setModalNovaAtividadeVisible(false)}
             >
                 <View style={styles.modalContainer}>
@@ -365,12 +361,12 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                             editable={!loading}
                         />
                         <TouchableOpacity
-                            style={GlobalStyles.button}
+                            style={[GlobalStyles.button, { marginTop: 15 }]}
                             onPress={handleAdicionarAtividade}
                             disabled={loading}
                         >
                             <Text style={GlobalStyles.buttonText}>
-                                {loading ? 'Salvando...' : 'Salvar'}
+                                {loading ? 'Salvando...' : 'Adicionar'}
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -378,10 +374,10 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                                 setModalNovaAtividadeVisible(false);
                                 setNovaAtividadeDescricao('');
                             }}
-                            style={{ marginTop: 10 }}
+                            style={styles.cancelButton}
                             disabled={loading}
                         >
-                            <Text style={{ color: Colors.danger, fontWeight: 'bold' }}>Cancelar</Text>
+                            <Text style={styles.cancelButtonText}>Cancelar</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -391,107 +387,168 @@ export default function TurmaDetailsScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+    // --- SEÇÃO DE CARDS E CONTEÚDO ---
     section: {
-        marginBottom: 20,
-        backgroundColor: Colors.cardBackground,
-        borderRadius: 8,
-        padding: 15,
-        elevation: 2,
+        marginBottom: 15,
+        marginHorizontal: 15, // Adiciona espaço nas laterais
+        backgroundColor: Colors.cardBackground || '#fff', // Fundo do Card
+        borderRadius: 12,
+        padding: 20,
+        // Sombra para dar profundidade (melhor visual card-like)
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3, 
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
+        marginBottom: 10,
+        paddingBottom: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.inputBorder || '#eee', // Linha sutil para separar o cabeçalho
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '700', // Mais forte
         color: Colors.text,
     },
-    editButton: {
+
+    // --- AÇÕES DO HEADER (TURMA) ---
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    editButtonContainer: {
+        paddingHorizontal: 10,
+    },
+    editButtonText: {
         color: Colors.primary,
-        fontWeight: '500',
+        fontWeight: '600',
     },
     deleteButtonContainer: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 6,
-        backgroundColor: Colors.danger + '20', // com transparência
+        marginLeft: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+        backgroundColor: Colors.danger + '15', // Fundo sutil de perigo
     },
     disabledButton: {
-        opacity: 0.6,
+        opacity: 0.5,
     },
     deleteButtonText: {
         color: Colors.danger,
         fontWeight: '600',
         fontSize: 14,
     },
-    addButton: {
-        color: Colors.primary,
-        fontWeight: '500',
-    },
+    
+    // --- INFORMAÇÕES DA TURMA ---
     info: {
-        marginBottom: 10,
+        paddingVertical: 10,
     },
     label: {
-        fontSize: 14,
-        color: Colors.textLight,
-        marginBottom: 5,
+        fontSize: 13,
+        color: Colors.textLight || '#666',
+        fontWeight: '500',
+        marginBottom: 2,
+        marginTop: 5,
     },
     value: {
         fontSize: 16,
         color: Colors.text,
-        marginBottom: 15,
+        marginBottom: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.inputBorder || '#eee',
+        paddingBottom: 8,
+    },
+
+    // --- LISTA DE ATIVIDADES ---
+    addButtonContainer: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 6,
+        backgroundColor: Colors.primary + '10',
+    },
+    addButtonText: {
+        color: Colors.primary,
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    atividadesList: {
+        marginTop: 5,
     },
     atividadeItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.inputBorder,
+        paddingVertical: 15,
+        paddingHorizontal: 10,
+        marginVertical: 4,
+        backgroundColor: Colors.background || '#f9f9f9', // Fundo para destacar o item da lista
+        borderRadius: 8,
     },
     atividadeDescricao: {
         flex: 1,
         fontSize: 15,
         color: Colors.text,
+        marginRight: 15,
     },
-    editAtividadeButton: {
+    atividadeActions: {
+        flexDirection: 'row',
+    },
+    actionButton: {
         marginLeft: 10,
+        padding: 5,
     },
-    deleteAtividadeButton: {
-        marginLeft: 10,
-    },
-    editButtonText: {
+    actionButtonTextPrimary: {
         color: Colors.primary,
+        fontWeight: '500',
     },
-    deleteButtonText: {
+    actionButtonTextDanger: {
         color: Colors.danger,
+        fontWeight: '500',
     },
+    noActivitiesText: {
+        textAlign: 'center',
+        color: Colors.textLight,
+        fontStyle: 'italic',
+        marginTop: 10,
+    },
+
+    // --- MODAIS ---
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        padding: 20,
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.6)', // Fundo mais escuro
     },
     modalContent: {
-        backgroundColor: Colors.cardBackground,
-        borderRadius: 8,
-        padding: 20,
+        width: '90%', // Ocupa a maior parte da largura
+        backgroundColor: Colors.cardBackground || '#fff',
+        borderRadius: 12,
+        padding: 25,
+        elevation: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.25,
+        shadowRadius: 6,
     },
     modalTitle: {
         fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 15,
+        fontWeight: '700',
+        marginBottom: 20,
         color: Colors.text,
+        textAlign: 'center',
     },
     cancelButton: {
-        marginTop: 10,
+        marginTop: 15,
         alignItems: 'center',
     },
     cancelButtonText: {
-        color: Colors.danger,
+        color: Colors.textLight || '#666',
         fontSize: 16,
+        fontWeight: '600',
     },
 });
