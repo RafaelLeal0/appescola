@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Modal, StyleSheet, ActivityIndicator } from 'react-native';
-// Assumindo que GlobalStyles e Colors existem e contêm estilos base
 import { GlobalStyles } from '../../styles/GlobalStyles.js'; 
 import { Colors } from '../../styles/Colors.js';
 import { updateTurma, updateAtividade, getAtividadesByTurma, deleteTurma, deleteAtividade, createAtividade } from '../../services/dataService.js';
-
-// ... (Restante do código, que não precisa ser repetido se não foi alterado na lógica)
-// A lógica do componente permanece a mesma, apenas a estilização foi aprimorada.
 
 export default function TurmaDetailsScreen({ route, navigation }) {
     const { turma } = route.params;
@@ -24,8 +20,6 @@ export default function TurmaDetailsScreen({ route, navigation }) {
     useEffect(() => {
         carregarAtividades();
     }, []);
-
-    // ... (funções carregarAtividades, handleSalvarTurma, handleEditarAtividade, handleSalvarAtividade, handleAdicionarAtividade, handleExcluirTurma, handleExcluirAtividade - Manter a mesma lógica)
 
     const carregarAtividades = async () => {
         try {
@@ -117,7 +111,6 @@ export default function TurmaDetailsScreen({ route, navigation }) {
     };
 
     const handleExcluirTurma = async () => {
-        
         if (excluindoTurma) {
             return;
         }
@@ -204,8 +197,6 @@ export default function TurmaDetailsScreen({ route, navigation }) {
     return (
         <ScrollView style={GlobalStyles.container}>
             <View style={GlobalStyles.contentPadding}>
-
-                {/* Dados da Turma */}
                 <View style={styles.section}>
                     <View style={styles.header}>
                         <Text style={styles.sectionTitle}>Dados da Turma</Text>
@@ -275,7 +266,6 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                     )}
                 </View>
 
-                {/* Lista de Atividades */}
                 <View style={styles.section}>
                     <View style={styles.header}>
                         <Text style={styles.sectionTitle}>Atividades ({atividades.length})</Text>
@@ -297,7 +287,6 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                 </View>
             </View>
 
-            {/* Modal de Edição de Atividade */}
             <Modal
                 visible={modalVisible}
                 transparent={true}
@@ -343,7 +332,6 @@ export default function TurmaDetailsScreen({ route, navigation }) {
                 </View>
             </Modal>
 
-            {/* Modal para Nova Atividade */}
             <Modal
                 visible={modalNovaAtividadeVisible}
                 transparent={true}
@@ -387,14 +375,12 @@ export default function TurmaDetailsScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-    // --- SEÇÃO DE CARDS E CONTEÚDO ---
     section: {
         marginBottom: 15,
-        marginHorizontal: 15, // Adiciona espaço nas laterais
-        backgroundColor: Colors.cardBackground || '#fff', // Fundo do Card
+        marginHorizontal: 15,
+        backgroundColor: Colors.cardBackground || '#fff',
         borderRadius: 12,
         padding: 20,
-        // Sombra para dar profundidade (melhor visual card-like)
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -408,15 +394,13 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingBottom: 10,
         borderBottomWidth: 1,
-        borderBottomColor: Colors.inputBorder || '#eee', // Linha sutil para separar o cabeçalho
+        borderBottomColor: Colors.inputBorder || '#eee',
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: '700', // Mais forte
+        fontWeight: '700',
         color: Colors.text,
     },
-
-    // --- AÇÕES DO HEADER (TURMA) ---
     headerActions: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -433,7 +417,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 8,
-        backgroundColor: Colors.danger + '15', // Fundo sutil de perigo
+        backgroundColor: Colors.danger + '15',
     },
     disabledButton: {
         opacity: 0.5,
@@ -443,8 +427,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         fontSize: 14,
     },
-    
-    // --- INFORMAÇÕES DA TURMA ---
     info: {
         paddingVertical: 10,
     },
@@ -463,8 +445,6 @@ const styles = StyleSheet.create({
         borderBottomColor: Colors.inputBorder || '#eee',
         paddingBottom: 8,
     },
-
-    // --- LISTA DE ATIVIDADES ---
     addButtonContainer: {
         paddingHorizontal: 10,
         paddingVertical: 4,
@@ -486,7 +466,7 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         paddingHorizontal: 10,
         marginVertical: 4,
-        backgroundColor: Colors.background || '#f9f9f9', // Fundo para destacar o item da lista
+        backgroundColor: Colors.background || '#f9f9f9',
         borderRadius: 8,
     },
     atividadeDescricao: {
@@ -516,16 +496,14 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         marginTop: 10,
     },
-
-    // --- MODAIS ---
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.6)', // Fundo mais escuro
+        backgroundColor: 'rgba(0,0,0,0.6)',
     },
     modalContent: {
-        width: '90%', // Ocupa a maior parte da largura
+        width: '90%',
         backgroundColor: Colors.cardBackground || '#fff',
         borderRadius: 12,
         padding: 25,

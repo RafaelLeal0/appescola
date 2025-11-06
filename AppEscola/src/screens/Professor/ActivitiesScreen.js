@@ -1,14 +1,10 @@
-// src/screens/Professor/ActivitiesScreen.js
-
 import React, { useLayoutEffect, useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert, Modal, TextInput, ActivityIndicator } from 'react-native';
-// Ajuste de caminho: a partir de src/screens/Professor -> src/styles é ../../styles
 import { GlobalStyles } from '../../styles/GlobalStyles.js';
 import { Colors } from '../../styles/Colors.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-// Ajuste de caminho para services (dois níveis acima)
-import { getAtividadesByTurma, createAtividade } from '../../services/dataService.js'; // Importa CRUD
+import { getAtividadesByTurma, createAtividade } from '../../services/dataService.js';
 
 export default function ActivitiesScreen({ route }) {
     const { turmaId, turmaNome } = route.params; 
@@ -21,11 +17,9 @@ export default function ActivitiesScreen({ route }) {
     const [activityDescription, setActivityDescription] = useState('');
     const [modalLoading, setModalLoading] = useState(false);
 
-    // Função para buscar as atividades
     const fetchActivities = async () => {
         setLoading(true);
         try {
-            // Lista as atividades da turma no Supabase
             const data = await getAtividadesByTurma(turmaId);
             setActivities(data);
         } catch (error) {
@@ -35,17 +29,15 @@ export default function ActivitiesScreen({ route }) {
         }
     };
 
-    // Recarrega os dados sempre que a tela estiver em foco
     useFocusEffect(
         useCallback(() => {
             fetchActivities();
         }, [turmaId])
     );
 
-    // Configura o cabeçalho (Nome do professor e Botão Sair)
     useLayoutEffect(() => {
         navigation.setOptions({
-            headerTitle: user ? user.nome : 'Professor', // Exibição do nome
+            headerTitle: user ? user.nome : 'Professor',
             headerRight: () => (
                 <TouchableOpacity onPress={logout} style={styles.headerButton}>
                     <Text style={styles.headerButtonText}>Sair</Text>
@@ -53,7 +45,6 @@ export default function ActivitiesScreen({ route }) {
             ),
         });
     }, [navigation, user, logout]);
-
 
     const handleAddActivity = async () => {
         if (!activityDescription.trim()) {
@@ -64,10 +55,10 @@ export default function ActivitiesScreen({ route }) {
         setModalLoading(true);
         try {
             const newActivity = await createAtividade(activityDescription.trim(), turmaId);
-            setActivities([...activities, newActivity]); // Atualiza a lista localmente
+            setActivities([...activities, newActivity]);
             Alert.alert('Sucesso', 'Atividade cadastrada com sucesso!');
             setActivityDescription('');
-            setModalVisible(false); // Fecha o modal
+            setModalVisible(false);
         } catch (error) {
             console.error('Erro ao cadastrar atividade:', error);
             Alert.alert('Erro', 'Não foi possível cadastrar a atividade.');
@@ -76,35 +67,29 @@ export default function ActivitiesScreen({ route }) {
         }
     };
 
-
     const renderItem = ({ item, index }) => (
         <View style={styles.activityItem}>
-            {/* Número da atividade e Descrição */}
             <Text style={styles.activityText}>
                 {index + 1}. {item.descricao}
             </Text>
-            {/* Implementar botões de edição e exclusão (Requisito 8) */}
         </View>
     );
 
     return (
         <View style={GlobalStyles.container}>
             <View style={GlobalStyles.contentPadding}>
-                {/* Botão para acesso ao "cadastrar atividade" */}
                 <TouchableOpacity
                     style={GlobalStyles.button}
-                    onPress={() => setModalVisible(true)} // Abre o modal para cadastrar atividade
+                    onPress={() => setModalVisible(true)}
                 >
                     <Text style={GlobalStyles.buttonText}>Cadastrar atividade</Text>
                 </TouchableOpacity>
 
-                {/* Exibir o nome da turma */}
                 <Text style={styles.classTitle}>Turma: {turmaNome}</Text>
 
                 {loading ? (
                     <ActivityIndicator size="large" color={Colors.primary} />
                 ) : (
-                    // Listagem de atividades
                     <FlatList
                         data={activities}
                         keyExtractor={item => item.id.toString()}
@@ -114,7 +99,6 @@ export default function ActivitiesScreen({ route }) {
                 )}
             </View>
 
-            {/* Modal de Cadastro de Atividade */}
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -185,7 +169,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: Colors.text,
     },
-    // Estilos do Modal (reutilizados do passo anterior)
     centeredView: {
         flex: 1,
         justifyContent: 'center',

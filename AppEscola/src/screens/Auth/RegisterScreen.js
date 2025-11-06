@@ -21,7 +21,6 @@ export default function RegisterScreen() {
     const handleRegister = async () => {
         setErrorMessage('');
 
-        // Validações básicas
         if (!name.trim() || !email.trim() || !password) {
             setErrorMessage('Por favor, preencha todos os campos.');
             return;
@@ -37,16 +36,12 @@ export default function RegisterScreen() {
 
         setLoading(true);
         try {
-            console.log('Iniciando signUp para:', email.trim());
-
-            // signUp com opções; emailRedirectTo null para não depender de redirect
             const { data: signUpData, error: signUpError } = await supabase.auth.signUp(
                 { email: email.trim(), password },
                 { emailRedirectTo: null, options: { data: { name: name.trim() } } }
             );
 
             if (signUpError) {
-                console.error('Erro signUp:', signUpError.message || signUpError);
                 if (/already/i.test(signUpError.message || '')) {
                     setErrorMessage('Este e‑mail já está cadastrado.');
                     Alert.alert('Erro', 'Este e‑mail já está cadastrado.');
@@ -58,53 +53,36 @@ export default function RegisterScreen() {
                 return;
             }
 
-            console.log('signUp concluído:', signUpData);
-
-            // Tentar autenticar imediatamente após o signUp
-            console.log('Tentando autenticar automaticamente...');
             const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
                 email: email.trim(),
                 password,
             });
 
             if (signInError) {
-                // Se o Supabase ainda exigir confirmação, ainda assim informamos e não bloqueamos o usuário de tentar login.
-                console.warn('Erro ao autenticar após signUp:', signInError.message || signInError);
-                // mostra mensagem, mas não impede que usuário tente login manualmente
                 Alert.alert('Aviso', signInError.message || 'Cadastro efetuado. Confirme seu e‑mail se necessário.');
                 setLoading(false);
-                // Navegar para Login para que o usuário faça sign in manualmente, caso não tenha sido autenticado
                 navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
                 return;
             }
 
-            // Se chegou aqui, signIn automatico foi bem‑sucedido
             const createdUser = signInData?.user || signUpData?.user || null;
-            console.log('Usuário autenticado automaticamente:', createdUser?.id);
 
-            // Inserir perfil na tabela 'professores' se tivermos id
             if (createdUser && createdUser.id) {
                 const { data: profileData, error: profileError } = await supabase
                     .from('professores')
                     .insert([{ id: createdUser.id, nome: name.trim(), email: email.trim() }]);
 
                 if (profileError) {
-                    console.error('Erro ao criar perfil:', profileError.message || profileError);
                     Alert.alert('Aviso', 'Cadastro efetuado, mas não foi possível salvar o perfil.');
-                } else {
-                    console.log('Perfil criado:', profileData);
                 }
             }
 
-            // Sucesso: informar e navegar para Main
-            console.log('Cadastro e login automáticos realizados para:', email.trim());
             Alert.alert('Sucesso', 'Cadastro realizado com sucesso! Você foi autenticado.');
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'Main' }],
             });
         } catch (e) {
-            console.error('Erro desconhecido no handleRegister:', e);
             setErrorMessage('Erro desconhecido ao cadastrar.');
             Alert.alert('Erro', 'Erro desconhecido ao cadastrar.');
         } finally {
@@ -117,7 +95,6 @@ export default function RegisterScreen() {
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.formWrap}>
-                        {/* Imagem acima do "Cadastrar" */}
                         <Image
                             source={require('../../../assets/logo.png')}
                             style={{ width: 250, height: 250, alignSelf: 'center', marginBottom: 0 }}
@@ -214,7 +191,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     titleLift: {
-        marginTop: -40, // ajusta esse valor conforme preferir
+        marginTop: -40,
         alignSelf: 'center',
     },
 });

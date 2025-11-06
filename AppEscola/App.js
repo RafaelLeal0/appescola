@@ -1,17 +1,15 @@
-// App.js
-
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider } from './src/context/AuthContext.js';
 import AppNavigator from './src/navigations/AppNavigator';
-import SplashScreen from './src/screens/SplashScreen.js'; // nova splash
+import SplashScreen from './src/screens/SplashScreen.js';
 
 export default function App() {
     const [showSplash, setShowSplash] = useState(true);
 
     useEffect(() => {
-        const t = setTimeout(() => setShowSplash(false), 3000); // mostra por 2s
+        const t = setTimeout(() => setShowSplash(false), 3000);
         return () => clearTimeout(t);
     }, []);
 
@@ -20,7 +18,6 @@ export default function App() {
     }
 
     return (
-        // Fornece o contexto de autenticação para toda a aplicação
         <AuthProvider>
             <NavigationContainer>
                 <AppNavigator />

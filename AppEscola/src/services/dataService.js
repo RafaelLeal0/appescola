@@ -1,33 +1,17 @@
-// src/services/dataService.js
-
 import { supabase } from '../database/Supabase';
 
-// ============== TURMAS (CLASSES) ==============
-
-/**
- * Cadastra uma nova turma no banco de dados.
- * @param {string} nome - Nome da turma.
- * @param {string} professorId - UUID do professor autenticado.
- */
 export const createTurma = async (nome, professorId) => {
     const { data, error } = await supabase
         .from('turmas')
         .insert([{ nome: nome, professor_id: professorId }])
-        .select();
+        .select()
+        .single();
 
     if (error) throw new Error(`Erro ao cadastrar turma: ${error.message}`);
-    return data[0]; // Retorna a turma criada
+    return data;
 };
 
-/**
- * Busca e lista todas as turmas pertencentes ao professor.
- * Inclui uma contagem de atividades para cada turma.
- * @param {string} professorId - UUID do professor.
- */
 export const getTurmasByProfessor = async (professorId) => {
-    console.log('getTurmasByProfessor - Buscando turmas para:', professorId);
-    
-    // 1. Busca todas as turmas do professor
     const { data: turmas, error } = await supabase
         .from('turmas')
         .select('id, nome')
@@ -35,13 +19,9 @@ export const getTurmasByProfessor = async (professorId) => {
         .order('id', { ascending: true });
 
     if (error) {
-        console.error('getTurmasByProfessor - Erro:', error);
         throw new Error(`Erro ao listar turmas: ${error.message}`);
     }
 
-    console.log('getTurmasByProfessor - Turmas encontradas:', turmas?.length || 0);
-
-    // 2. Para cada turma, busca a contagem de atividades
     const turmasWithCount = await Promise.all(
         turmas.map(async (turma) => {
             const { count, error: countError } = await supabase
@@ -49,10 +29,6 @@ export const getTurmasByProfessor = async (professorId) => {
                 .select('*', { count: 'exact', head: true })
                 .eq('turma_id', turma.id);
 
-            if (countError) {
-                console.error("getTurmasByProfessor - Erro ao contar atividades:", countError);
-            }
-            
             return {
                 ...turma,
                 activities_count: count || 0,
@@ -63,86 +39,59 @@ export const getTurmasByProfessor = async (professorId) => {
     return turmasWithCount;
 };
 
-/**
- * Atualiza os dados de uma turma existente.
- * @param {number} turmaId - ID da turma
- * @param {object} dados - Dados a serem atualizados (nome)
- */
 export const updateTurma = async (turmaId, dados) => {
-    // 1. Validar campos permitidos
-    const camposPermitidos = ['nome'];
-    const camposInvalidos = Object.keys(dados).filter(campo => !camposPermitidos.includes(campo));
-    
-    if (camposInvalidos.length > 0) {
-        console.error('Campos inválidos detectados:', camposInvalidos);
-        throw new Error(`Campos inválidos: ${camposInvalidos.join(', ')}`);
-    }
-
-    // 2. Garantir que nome não seja vazio
     if (!dados.nome?.trim()) {
-        throw new Error('Nome da turma é obrigatório');
+        throw new Error('O nome da turma é obrigatório.');
     }
 
-    // 3. Fazer update apenas com campos válidos
-    const dadosParaAtualizar = {
-        nome: dados.nome.trim()
-    };
-
-    console.log('Atualizando turma:', turmaId, 'com dados:', dadosParaAtualizar);
-    
     const { data, error } = await supabase
         .from('turmas')
-        .update(dadosParaAtualizar)
+        .update({ nome: dados.nome.trim() })
         .eq('id', turmaId)
-        .select('id, nome') // Seleciona apenas campos existentes
+        .select('id, nome')
         .single();
 
-    if (error) {
-        console.error('Erro ao atualizar turma:', error);
-        throw new Error(`Erro ao atualizar turma: ${error.message}`);
-    }
-
-    console.log('Turma atualizada com sucesso:', data);
+    if (error) throw new Error(`Erro ao atualizar turma: ${error.message}`);
     return data;
 };
 
-/**
- * Exclui uma turma do banco de dados.
- * @param {number} turmaId - ID da turma a ser excluída.
- */
 export const deleteTurma = async (turmaId) => {
+    const { count, error: countError } = await supabase
+        .from('atividades')
+        .select('*', { count: 'exact', head: true })
+        .eq('turma_id', turmaId);
+
+    if (countError) {
+        throw new Error(`Erro ao verificar atividades antes da exclusão: ${countError.message}`);
+    }
+
+    if (count > 0) {
+        throw new Error('Você não pode excluir uma turma que possui atividades cadastradas.');
+    }
+
     const { error } = await supabase
         .from('turmas')
         .delete()
         .eq('id', turmaId);
 
     if (error) {
-        console.error('Erro ao excluir turma:', error);
         throw new Error(`Erro ao excluir turma: ${error.message}`);
     }
+
+    return true;
 };
 
-// ============== ATIVIDADES (ACTIVITIES) ==============
-
-/**
- * Cadastra uma nova atividade para uma turma específica.
- * @param {string} descricao - Descrição da atividade.
- * @param {number} turmaId - ID da turma selecionada.
- */
 export const createAtividade = async (descricao, turmaId) => {
     const { data, error } = await supabase
         .from('atividades')
-        .insert([{ descricao: descricao, turma_id: turmaId }])
-        .select();
+        .insert([{ descricao, turma_id: turmaId }])
+        .select()
+        .single();
 
     if (error) throw new Error(`Erro ao cadastrar atividade: ${error.message}`);
-    return data[0]; // Retorna a atividade criada
+    return data;
 };
 
-/**
- * Lista todas as atividades de uma turma.
- * @param {number} turmaId - ID da turma.
- */
 export const getAtividadesByTurma = async (turmaId) => {
     const { data, error } = await supabase
         .from('atividades')
@@ -154,34 +103,21 @@ export const getAtividadesByTurma = async (turmaId) => {
     return data;
 };
 
-/**
- * Atualiza os dados de uma atividade.
- * @param {number} atividadeId - ID da atividade
- * @param {object} dados - Dados a serem atualizados
- */
 export const updateAtividade = async (atividadeId, dados) => {
-    console.log('Atualizando atividade:', atividadeId, 'com dados:', dados);
-
     const { data, error } = await supabase
         .from('atividades')
         .update(dados)
         .eq('id', atividadeId)
-        .select('*') // Retorna registro atualizado
+        .select('*')
         .single();
 
     if (error) {
-        console.error('Erro ao atualizar atividade:', error);
         throw new Error(`Erro ao atualizar atividade: ${error.message}`);
     }
 
-    console.log('Atividade atualizada:', data);
     return data;
 };
 
-/**
- * Exclui uma atividade específica do banco de dados.
- * @param {number} atividadeId - ID da atividade a ser excluída.
- */
 export const deleteAtividade = async (atividadeId) => {
     const { error } = await supabase
         .from('atividades')
@@ -189,7 +125,8 @@ export const deleteAtividade = async (atividadeId) => {
         .eq('id', atividadeId);
 
     if (error) {
-        console.error('Erro ao excluir atividade:', error);
         throw new Error(`Erro ao excluir atividade: ${error.message}`);
     }
+
+    return true;
 };

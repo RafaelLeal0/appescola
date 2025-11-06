@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Image, StyleSheet, StatusBar } from 'react-native';
-import { Colors } from '../../src/styles/Colors'; // caso exista
+import { Colors } from '../../src/styles/Colors';
 
 export default function SplashScreen() {
 	return (
 		<View style={styles.container}>
 			<StatusBar backgroundColor={Colors ? Colors.primary : '#fff'} barStyle="light-content" />
 			<Image
-				source={require('../../assets/logo.png')} // coloque sua imagem aqui (veja observação)
+				source={require('../../assets/logo.png')}
 				style={styles.logo}
 				resizeMode="contain"
 			/>

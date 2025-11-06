@@ -1,15 +1,10 @@
-// src/screens/Professor/MainScreen.js (ATUALIZADO COM ICON E AJUSTE DE COR)
-
 import React, { useLayoutEffect, useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-
 import { GlobalStyles } from '../../styles/GlobalStyles.js'; 
 import { Colors } from '../../styles/Colors.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { getTurmasByProfessor } from '../../services/dataService.js';
-
-// ✅ ÍCONE DE SAIR
 import { Ionicons } from '@expo/vector-icons';
 
 export default function MainScreen() {
@@ -24,7 +19,6 @@ export default function MainScreen() {
             headerTitle: user?.nome || 'Professor',
             headerRight: () => (
                 <TouchableOpacity onPress={logout} style={styles.headerButton}>
-                    {/* ✅ Ícone substituindo o texto "Sair" */}
                     <Ionicons name="log-out-outline" size={24} color="#fff" />
                 </TouchableOpacity>
             ),
@@ -74,7 +68,6 @@ export default function MainScreen() {
                     style={[styles.actionButton, styles.viewButton]}
                     onPress={() => navigation.navigate('TurmaDetails', { turma: item })}
                 >
-                    {/* ✅ cor branca garantida */}
                     <Text style={styles.buttonText}>Visualizar</Text>
                 </TouchableOpacity>
             </View>
@@ -133,7 +126,6 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.primary,
         marginRight: 10,
     },
-
     turmaCard: {
         backgroundColor: Colors.card,
         borderRadius: 14,
@@ -147,34 +139,28 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 3,
     },
-
     turmaInfo: {
         marginBottom: 16,
     },
-
     turmaNome: {
         fontSize: 20,
         fontWeight: '600',
         color: Colors.textDark,
         marginBottom: 4,
     },
-
     turmaAtividades: {
         fontSize: 14,
         color: Colors.textLight,
     },
-
     buttonContainer: {
         flexDirection: 'row',
     },
-
     actionButton: {
         flex: 1,
         borderRadius: 10,
         paddingVertical: 12,
         alignItems: 'center',
     },
-
     viewButton: {
         backgroundColor: Colors.primary,
         shadowColor: Colors.primary,
@@ -182,20 +168,16 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-
-    // ✅ Texto agora sempre branco
     buttonText: {
         color: '#fff',
         fontWeight: '600',
         fontSize: 15,
     },
-
     centerContent: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-
     errorContainer: {
         padding: 12,
         backgroundColor: '#ffeaea',
@@ -209,7 +191,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: '600',
     },
-
     emptyContainer: {
         padding: 40,
         alignItems: 'center',
@@ -220,12 +201,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         lineHeight: 24,
     },
-
     listContainer: {
         paddingTop: 20,
         paddingBottom: 50,
     },
-
     addButton: {
         shadowColor: Colors.primary,
         shadowOpacity: 0.18,

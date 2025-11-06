@@ -38,8 +38,6 @@ export default function LoginScreen() {
                 return;
             }
 
-            // Login bem-sucedido: apenas limpa campos
-            // AppNavigator detecta mudança em user e navega automaticamente
             setEmail('');
             setSenha('');
             setLoginError(false);
@@ -53,7 +51,7 @@ export default function LoginScreen() {
 
     const styles = StyleSheet.create({
         titleLift: {
-            marginTop: -40, // ajusta esse valor conforme preferir
+            marginTop: -40,
             alignSelf: 'center',
         },
     });
@@ -61,7 +59,6 @@ export default function LoginScreen() {
     return (
         <View style={GlobalStyles.container}>
             <View style={{ ...GlobalStyles.contentPadding, flex: 1, justifyContent: 'center' }}>
-                {/* Imagem acima do "Bem Vindo" */}
                 <Image
                     source={require('../../../assets/logo.png')}
                     style={{ width: 250, height: 250, alignSelf: 'center', marginBottom: 0 }}
@@ -69,7 +66,6 @@ export default function LoginScreen() {
                 />
                 <Text style={[GlobalStyles.title, styles.titleLift]}>Bem Vindo</Text>
 
-                {/* Exibição da mensagem de Erro */}
                 {loginError && (
                     <View style={GlobalStyles.errorBox}>
                         <Text style={GlobalStyles.errorText}>
@@ -109,7 +105,6 @@ export default function LoginScreen() {
                     )}
                 </TouchableOpacity>
 
-                {/* Link para a tela de cadastro */}
                 <TouchableOpacity
                     onPress={() => navigation.navigate('Register')}
                     style={{ marginTop: 12, alignSelf: 'center' }}
